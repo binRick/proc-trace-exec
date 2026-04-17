@@ -1,10 +1,9 @@
-// extrace-go — trace exec() calls system-wide via Linux proc connector
+// proc-trace-exec — trace exec() calls system-wide via Linux proc connector
 //
-// Port of extrace by Leah Neukirchen <leah@vuxu.org>
 // Requires CONFIG_CONNECTOR=y and CONFIG_PROC_EVENTS=y
 // Requires root or CAP_NET_ADMIN
 //
-// Usage: extrace [-deflqQtu] [-o FILE] [-p PID | CMD...]
+// Usage: proc-trace-exec [-deflqQtu] [-o FILE] [-p PID | CMD...]
 package main
 
 import (
@@ -55,6 +54,8 @@ var (
 )
 
 // ─── Global options ───────────────────────────────────────────────────────────
+
+var version = "dev"
 
 var (
 	watchPID   int32 = 1 // only trace descendants of this PID (1 = everyone)
@@ -410,7 +411,7 @@ func pidDepth(pid int32) int {
 	}
 	ppid := statPPID(pid)
 	if ppid <= 0 {
-		runtimeErr("extrace: cannot read ppid for pid %d", pid)
+		runtimeErr("proc-trace-exec: cannot read ppid for pid %d", pid)
 		return -1
 	}
 	if ppid == watchPID {
@@ -600,17 +601,17 @@ func runtimeErr(f string, args ...any) {
 }
 
 func fatalf(f string, args ...any) {
-	fmt.Fprintf(os.Stderr, "extrace: "+f+"\n", args...)
+	fmt.Fprintf(os.Stderr, "proc-trace-exec: "+f+"\n", args...)
 	os.Exit(1)
 }
 
 func fatal(msg string) {
-	fmt.Fprintln(os.Stderr, "extrace: "+msg)
+	fmt.Fprintln(os.Stderr, "proc-trace-exec: "+msg)
 	os.Exit(1)
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "Usage: extrace [-deflqQtu] [-o FILE] [-p PID | CMD...]")
+	fmt.Fprintln(os.Stderr, "Usage: proc-trace-exec [-deflqQtu] [-o FILE] [-p PID | CMD...]")
 	fmt.Fprintln(os.Stderr, "  -d    print cwd of process")
 	fmt.Fprintln(os.Stderr, "  -e    print environment of process")
 	fmt.Fprintln(os.Stderr, "  -f    flat output: no indentation")
