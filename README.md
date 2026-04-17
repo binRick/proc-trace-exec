@@ -152,6 +152,43 @@ sudo proc-trace-exec -f | grep python
 
 Linux exposes process lifecycle events via the proc connector — a netlink socket (`AF_NETLINK` / `NETLINK_CONNECTOR`, multicast group `CN_IDX_PROC`). Any process holding `CAP_NET_ADMIN` can subscribe with `PROC_CN_MCAST_LISTEN` and receive kernel events for every `fork()`, `exec()`, and `exit()` system-wide.
 
+```mermaid
+flowchart LR
+    subgraph K ["Linux Kernel"]
+        direction TB
+        PC["proc connector\nCN_IDX_PROC"]
+    end
+    subgraph FS ["/proc filesystem"]
+        direction TB
+        CMD["/proc/PID/cmdline"]
+        STAT["/proc/PID/stat"]
+        EXE["/proc/PID/exe · cwd · environ"]
+    end
+    P(["Any Process"]) -->|"execve()"| PC
+    PC -->|"PROC_EVENT_EXEC\n(netlink multicast)"| PTE["proc-trace-exec"]
+    PTE <-->|"read"| FS
+    PTE --> OUT["Terminal / File"]
+```
+
+```mermaid
+sequenceDiagram
+    participant P as bash (PID 999)
+    participant K as Linux Kernel
+    participant PTE as proc-trace-exec
+    participant FS as /proc
+
+    P->>K: execve("/usr/bin/curl", ["curl","https://..."])
+    K-->>PTE: PROC_EVENT_EXEC  pid=1234
+    PTE->>FS: /proc/1234/cmdline
+    FS-->>PTE: ["curl", "https://example.com"]
+    PTE->>FS: /proc/1234/stat
+    FS-->>PTE: ppid=999 → depth=1
+    Note over PTE: "  1234+ curl https://example.com"
+    K-->>PTE: PROC_EVENT_EXIT  pid=1234  exit_code=0
+    PTE->>PTE: lookup pidDB[1234] → elapsed
+    Note over PTE: "  1234- curl exited status=0 time=0.342s"
+```
+
 On each `PROC_EVENT_EXEC`:
 
 1. Read `/proc/<pid>/cmdline` for the full argument vector
