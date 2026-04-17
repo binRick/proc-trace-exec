@@ -611,16 +611,36 @@ func fatal(msg string) {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "Usage: proc-trace-exec [-deflqQtu] [-o FILE] [-p PID | CMD...]")
-	fmt.Fprintln(os.Stderr, "  -d    print cwd of process")
-	fmt.Fprintln(os.Stderr, "  -e    print environment of process")
-	fmt.Fprintln(os.Stderr, "  -f    flat output: no indentation")
-	fmt.Fprintln(os.Stderr, "  -l    print full path of argv[0]")
-	fmt.Fprintln(os.Stderr, "  -o FILE  log to FILE instead of stdout")
-	fmt.Fprintln(os.Stderr, "  -p PID   only trace descendants of PID")
-	fmt.Fprintln(os.Stderr, "  -q    suppress arguments")
-	fmt.Fprintln(os.Stderr, "  -Q    suppress error messages")
-	fmt.Fprintln(os.Stderr, "  -t    show exit status and timing")
-	fmt.Fprintln(os.Stderr, "  -u    print user of process")
+	const (
+		bold    = "\033[1m"
+		dim     = "\033[2m"
+		reset   = "\033[0m"
+		cyan    = "\033[36m"
+		yellow  = "\033[33m"
+		green   = "\033[32m"
+		magenta = "\033[35m"
+	)
+	e := os.Stderr
+	fmt.Fprintf(e, "\n  %s🔍 proc-trace-exec%s %s%s%s — system-wide exec() tracer for Linux\n\n", bold+cyan, reset, dim, version, reset)
+	fmt.Fprintf(e, "  %sUsage:%s\n", bold, reset)
+	fmt.Fprintf(e, "    proc-trace-exec %s[flags]%s %s[-p PID | CMD...]%s\n\n", dim, reset, yellow, reset)
+	fmt.Fprintf(e, "  %sFlags:%s\n", bold, reset)
+	fmt.Fprintf(e, "    📁  %s-d%s          print cwd of each process\n", yellow, reset)
+	fmt.Fprintf(e, "    🌿  %s-e%s          print environment variables\n", yellow, reset)
+	fmt.Fprintf(e, "    ⬜  %s-f%s          flat output %s(no indentation)%s\n", yellow, reset, dim, reset)
+	fmt.Fprintf(e, "    🔗  %s-l%s          print full executable path\n", yellow, reset)
+	fmt.Fprintf(e, "    📝  %s-o%s %sFILE%s      log output to FILE instead of stdout\n", yellow, reset, cyan, reset)
+	fmt.Fprintf(e, "    🎯  %s-p%s %sPID%s       trace only descendants of PID\n", yellow, reset, cyan, reset)
+	fmt.Fprintf(e, "    🤫  %s-q%s          suppress arguments\n", yellow, reset)
+	fmt.Fprintf(e, "    🔇  %s-Q%s          suppress error messages\n", yellow, reset)
+	fmt.Fprintf(e, "    ⏱️   %s-t%s          show exit status + timing\n", yellow, reset)
+	fmt.Fprintf(e, "    👤  %s-u%s          print owning user\n", yellow, reset)
+	fmt.Fprintf(e, "\n  %sExamples:%s\n", bold, reset)
+	fmt.Fprintf(e, "    %s# trace a command and all its children%s\n", dim, reset)
+	fmt.Fprintf(e, "    sudo proc-trace-exec %s-t%s sh -c %s'make'%s\n\n", green, reset, magenta, reset)
+	fmt.Fprintf(e, "    %s# watch only descendants of an existing process%s\n", dim, reset)
+	fmt.Fprintf(e, "    sudo proc-trace-exec %s-p%s $(pgrep nginx)\n\n", green, reset)
+	fmt.Fprintf(e, "    %s# log everything to a file%s\n", dim, reset)
+	fmt.Fprintf(e, "    sudo proc-trace-exec %s-Qo%s /var/log/execs.log\n\n", green, reset)
 	os.Exit(1)
 }
