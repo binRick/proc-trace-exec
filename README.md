@@ -1,10 +1,21 @@
-# proc-trace-exec
+<div align="center">
+  <img src="docs/logo.svg" width="140" alt="proc-trace-exec logo"/>
+  <h1>proc-trace-exec</h1>
+  <p><strong>See every <code>exec()</code> call on your Linux system — in real time, with process tree indentation, exit status, and timing.</strong></p>
 
-**See every `exec()` call on your Linux system — in real time, with process tree indentation, exit status, and timing.**
+  ![Platform](https://img.shields.io/badge/platform-linux-f59e0b?style=flat-square)
+  ![Language](https://img.shields.io/badge/go-1.21+-fbbf24?style=flat-square&logo=go&logoColor=white)
+  ![License](https://img.shields.io/badge/license-MIT-d97706?style=flat-square)
+  ![Arch](https://img.shields.io/badge/arch-amd64%20%7C%20arm64-fde68a?style=flat-square)
+</div>
 
-![demo](docs/demo.svg)
+---
 
 `proc-trace-exec` listens to the Linux kernel's [proc connector](https://www.kernel.org/doc/html/latest/driver-api/connector.html) via a netlink socket and prints a line every time any process calls `exec()`. No eBPF, no `ptrace`, no kernel module — just a netlink socket and `/proc`.
+
+<div align="center">
+  <img src="docs/demo.svg" alt="proc-trace-exec demo"/>
+</div>
 
 ---
 
